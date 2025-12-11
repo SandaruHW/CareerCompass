@@ -45,3 +45,34 @@ coverage/
 *.pem
 .cache/
 .turbo/
+
+# Maven
+backend/target/
+backend/**/target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+maven-archiver/
+surefire-reports/
+.mvn/wrapper/maven-wrapper.jar
+
+# Java
+*.class
+*.log
+*.ctxt
+.mtj.tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+
+# Compiled class files
+**/target/
+**/classes/
+**/generated/
