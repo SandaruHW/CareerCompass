@@ -1,0 +1,30 @@
+# Production Profile - Overrides application.yml
+# This file is automatically loaded when spring.profiles.active=prod
+# All sensitive values should come from environment variables
+
+spring:
+  datasource:
+    hikari:
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 0
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+app:
+  environment: production
+  feature:
+    enabled: ${FEATURE_ENABLED:false}
+
+logging:
+  level:
+    root: WARN
+    com.careercompass.backend: INFO
+    org.springframework.security: WARN
+
