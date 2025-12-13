@@ -3,12 +3,19 @@
 # All sensitive values should come from environment variables
 
 spring:
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false  # Should be false in production
+    validate-on-migrate: true
+    clean-disabled: true
   datasource:
     hikari:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
       leak-detection-threshold: 0
+      pool-name: CareerCompassHikariPool
   jpa:
     properties:
       hibernate:
