@@ -25,3 +25,10 @@ CREATE TRIGGER update_jobs_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+-- Create trigger for resumes table (if it exists)
+DROP TRIGGER IF EXISTS update_resumes_updated_at ON resumes;
+CREATE TRIGGER update_resumes_updated_at
+    BEFORE UPDATE ON resumes
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
