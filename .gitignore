@@ -76,3 +76,6 @@ local.properties
 **/target/
 **/classes/
 **/generated/
+
+
+**/uploads/
