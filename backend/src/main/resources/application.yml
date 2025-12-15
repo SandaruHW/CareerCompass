@@ -28,7 +28,7 @@ app:
     min-idle: ${DB_MIN_IDLE:5}
     max-lifetime: ${DB_MAX_LIFETIME:1800000}
   jwt:
-    secret: ${JWT_SECRET:your-secret-key-change-in-production-min-256-bits}
+    secret: ${JWT_SECRET:YourSecretKeyChangeInProductionMinimum256BitsForSecurityPurposesCareerCompass2025}
     expiration-ms: ${JWT_EXPIRATION_MS:86400000}
     refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}
     issuer: ${JWT_ISSUER:careercompass}

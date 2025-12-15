@@ -3,35 +3,21 @@ package com.careercompass.backend.dto.request;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
-
-// DTO for user registration with validation rules.
-
+/**
+ * Request DTO for updating user profile information
+ * All fields are optional for partial updates
+ */
 @Data
-public class UserCreateRequest {
-    
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid", regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
-    @Size(max = 320, message = "Email cannot exceed 320 characters")
-    private String email;
+public class UserUpdateRequest {
     
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     @Pattern(regexp = "^[a-zA-Z0-9._-]*$", message = "Username can only contain letters, numbers, dots, underscores, and hyphens")
     private String username;
     
-    @NotBlank(message = "Password is required")
-    @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
-    @Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
-        message = "Password must contain at least: 1 lowercase letter, 1 uppercase letter, 1 number, and 1 special character"
-    )
-    private String password;
-    
-    @NotBlank(message = "First name is required")
     @Size(min = 1, max = 100, message = "First name must be between 1 and 100 characters")
     @Pattern(regexp = "^[a-zA-Z\\s'-]*$", message = "First name can only contain letters, spaces, hyphens, and apostrophes")
     private String firstName;
     
-    @NotBlank(message = "Last name is required")
     @Size(min = 1, max = 100, message = "Last name must be between 1 and 100 characters")
     @Pattern(regexp = "^[a-zA-Z\\s'-]*$", message = "Last name can only contain letters, spaces, hyphens, and apostrophes")
     private String lastName;
@@ -42,4 +28,3 @@ public class UserCreateRequest {
     )
     private String phoneNumber;
 }
-

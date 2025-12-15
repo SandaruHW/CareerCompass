@@ -1,16 +1,61 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/lib/auth-context"
 import Link from "next/link"
-import { Briefcase, Mail, Lock } from "lucide-react"
+import { Briefcase, Mail, Lock, Eye, EyeOff } from "lucide-react"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    rememberMe: false,
+  })
+  const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  
+  const { login } = useAuth()
+  const router = useRouter()
+  const { toast } = useToast()
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      await login(formData)
+      
+      toast({
+        title: "Welcome back!",
+        description: "You have successfully logged in.",
+      })
+      
+      router.push("/dashboard")
+    } catch (error: any) {
+      console.error("Login failed:", error)
+      toast({
+        title: "Login failed",
+        description: error.message || "Please check your email and password.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 flex items-center justify-center p-4">
@@ -24,7 +69,7 @@ export default function LoginPage() {
           <p className="text-neutral-600">Sign in to your account</p>
         </div>
 
-        <form className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-neutral-700">
               Email
@@ -33,11 +78,13 @@ export default function LoginPage() {
               <Mail className="absolute left-3 top-3 w-5 h-5 text-neutral-400" />
               <Input
                 id="email"
+                name="email"
                 type="email"
-                placeholder="your@email.com"
+                placeholder="john@example.com"
+                value={formData.email}
+                onChange={handleChange}
                 className="pl-10"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
           </div>
@@ -50,47 +97,61 @@ export default function LoginPage() {
               <Lock className="absolute left-3 top-3 w-5 h-5 text-neutral-400" />
               <Input
                 id="password"
-                type="password"
-                placeholder="••••••••"
-                className="pl-10"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleChange}
+                className="pl-10 pr-10"
+                required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-3 text-neutral-400 hover:text-neutral-600"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" className="w-4 h-4 rounded border-neutral-300" />
-              <span className="text-neutral-600">Remember me</span>
-            </label>
-            <a href="#" className="text-primary hover:text-primary-dark">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <input
+                id="rememberMe"
+                name="rememberMe"
+                type="checkbox"
+                checked={formData.rememberMe}
+                onChange={handleChange}
+                className="rounded border-neutral-300"
+              />
+              <Label htmlFor="rememberMe" className="text-sm text-neutral-600">
+                Remember me
+              </Label>
+            </div>
+            <Link
+              href="/forgot-password"
+              className="text-sm text-primary hover:underline"
+            >
               Forgot password?
-            </a>
+            </Link>
           </div>
 
-          <Button className="w-full bg-primary hover:bg-primary-dark py-2">Sign In</Button>
+          <Button 
+            type="submit" 
+            className="w-full"
+            disabled={isLoading}
+          >
+            {isLoading ? "Signing in..." : "Sign In"}
+          </Button>
+
+          <div className="text-center">
+            <span className="text-neutral-600">Don't have an account? </span>
+            <Link href="/signup" className="text-primary hover:underline font-medium">
+              Sign up
+            </Link>
+          </div>
         </form>
-
-        <div className="my-6 relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-neutral-300"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-neutral-500">Or continue with</span>
-          </div>
-        </div>
-
-        <Button variant="outline" className="w-full bg-transparent">
-          Continue with Google
-        </Button>
-
-        <p className="text-center text-neutral-600 text-sm mt-6">
-          Don't have an account?{" "}
-          <Link href="/signup" className="text-primary hover:text-primary-dark font-semibold">
-            Sign up
-          </Link>
-        </p>
       </Card>
     </div>
   )
