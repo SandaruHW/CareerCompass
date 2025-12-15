@@ -74,11 +74,65 @@ export default function SignupPage() {
   }
 
   const validateForm = () => {
+    // Check required fields
+    if (!formData.firstName.trim()) {
+      toast({
+        title: "First name required",
+        description: "Please enter your first name.",
+        variant: "destructive",
+        duration: 4000,
+      })
+      return false
+    }
+    
+    if (!formData.lastName.trim()) {
+      toast({
+        title: "Last name required", 
+        description: "Please enter your last name.",
+        variant: "destructive",
+        duration: 4000,
+      })
+      return false
+    }
+    
+    if (!formData.email.trim()) {
+      toast({
+        title: "Email required",
+        description: "Please enter your email address.",
+        variant: "destructive",
+        duration: 4000,
+      })
+      return false
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(formData.email)) {
+      toast({
+        title: "Invalid email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+        duration: 4000,
+      })
+      return false
+    }
+
+    if (!formData.password) {
+      toast({
+        title: "Password required",
+        description: "Please enter a password.",
+        variant: "destructive",
+        duration: 4000,
+      })
+      return false
+    }
+
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Passwords don't match",
         description: "Please make sure both password fields match.",
         variant: "destructive",
+        duration: 4000,
       })
       return false
     }
@@ -88,6 +142,7 @@ export default function SignupPage() {
         title: "Password too short",
         description: "Password must be at least 8 characters long.",
         variant: "destructive",
+        duration: 4000,
       })
       return false
     }
@@ -101,6 +156,7 @@ export default function SignupPage() {
           title: "Invalid phone number",
           description: "Please enter a valid Sri Lankan phone number (+94 77 123 4567).",
           variant: "destructive",
+          duration: 4000,
         })
         return false
       }
@@ -111,6 +167,7 @@ export default function SignupPage() {
         title: "Terms not accepted",
         description: "Please accept the terms and conditions to continue.",
         variant: "destructive",
+        duration: 4000,
       })
       return false
     }
@@ -146,10 +203,75 @@ export default function SignupPage() {
       router.push("/dashboard")
     } catch (error: any) {
       console.error("Registration failed:", error)
+      console.error("Error details:", JSON.stringify(error, null, 2))
+      
+      // Handle different types of errors
+      let errorTitle = "Registration failed"
+      let errorMessage = "Please try again with different details."
+      
+      if (error.status === 409) {
+        // Conflict - usually duplicate email
+        errorTitle = "Email already exists"
+        errorMessage = "An account with this email already exists. Please use a different email or try logging in."
+      } else if (error.status === 400) {
+        // Bad request - validation errors
+        errorTitle = "Validation Error"
+        
+        // Try to extract specific validation errors from different possible structures
+        let backendMessage = ""
+        
+        // Check if errors object exists (Spring Boot validation format)
+        if (error.errors && typeof error.errors === 'object') {
+          // Extract all field errors and combine them
+          const fieldErrors = []
+          for (const [field, message] of Object.entries(error.errors)) {
+            if (typeof message === 'string') {
+              fieldErrors.push(`${field}: ${message}`)
+            }
+          }
+          if (fieldErrors.length > 0) {
+            backendMessage = fieldErrors.join('; ')
+            // If it's a single field error, don't show the field name prefix
+            if (fieldErrors.length === 1) {
+              const singleError = Object.values(error.errors)[0] as string
+              backendMessage = singleError
+            }
+          }
+        } else if (typeof error.message === 'string') {
+          backendMessage = error.message
+        } else if (error.error && typeof error.error === 'string') {
+          backendMessage = error.error
+        } else if (error.details && typeof error.details === 'string') {
+          backendMessage = error.details
+        } else if (error.errors && Array.isArray(error.errors)) {
+          // Handle array of validation errors
+          backendMessage = error.errors.map((err: any) => 
+            typeof err === 'string' ? err : err.message || err.defaultMessage
+          ).join('; ')
+        }
+        
+        // If we have a specific backend message, use it
+        if (backendMessage && backendMessage !== 'Validation failed') {
+          errorMessage = backendMessage
+        } else {
+          errorMessage = "Please check your information and ensure all fields are filled correctly."
+        }
+      } else if (error.status === 500) {
+        // Server error
+        errorTitle = "Server Error"
+        errorMessage = "Something went wrong on our end. Please try again later."
+      } else if (error.message) {
+        // Custom error message from backend - show it directly
+        errorTitle = "Registration Failed"
+        errorMessage = error.message
+      }
+      
+      // Force show toast notification
       toast({
-        title: "Registration failed",
-        description: error.message || "Please try again with different details.",
+        title: errorTitle,
+        description: errorMessage,
         variant: "destructive",
+        duration: 8000, // Show for 8 seconds for longer messages
       })
     } finally {
       setIsLoading(false)

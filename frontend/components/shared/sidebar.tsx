@@ -2,6 +2,8 @@
 
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useAuth } from "@/lib/auth-context"
+import { useToast } from "@/hooks/use-toast"
 import { LayoutDashboard, Briefcase, FileText, Settings, LogOut, BarChart3 } from "lucide-react"
 import { usePathname } from "next/navigation"
 
@@ -11,6 +13,28 @@ interface SidebarProps {
 
 export function Sidebar({ isAdmin = false }: SidebarProps) {
   const pathname = usePathname()
+  const { logout } = useAuth()
+  const { toast } = useToast()
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      toast({
+        title: "Logged out successfully",
+        description: "You have been logged out of your account.",
+      })
+      // Force a page reload to ensure clean state
+      window.location.href = '/'
+    } catch (error) {
+      console.error('Logout failed:', error)
+      toast({
+        title: "Logout completed",
+        description: "You have been logged out.",
+      })
+      // Force redirect even if logout fails
+      window.location.href = '/'
+    }
+  }
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -51,7 +75,11 @@ export function Sidebar({ isAdmin = false }: SidebarProps) {
           <Settings className="w-5 h-5" />
           Settings
         </Link>
-        <Button variant="outline" className="w-full justify-start gap-3 bg-transparent">
+        <Button 
+          variant="outline" 
+          className="w-full justify-start gap-3 bg-transparent"
+          onClick={handleLogout}
+        >
           <LogOut className="w-5 h-5" />
           Logout
         </Button>
