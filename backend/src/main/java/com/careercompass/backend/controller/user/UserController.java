@@ -5,6 +5,9 @@ import com.careercompass.backend.dto.response.UserResponse;
 import com.careercompass.backend.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +35,9 @@ public class UserController {
     
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
-        List<UserResponse> responses = userService.getAllUsers();
+        Pageable pageable = PageRequest.of(0, 50); // Default pagination
+        Page<UserResponse> page = userService.getAllUsers(pageable);
+        List<UserResponse> responses = page.getContent();
         return ResponseEntity.ok(responses);
     }
 }

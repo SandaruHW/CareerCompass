@@ -61,6 +61,7 @@ public class Job {
 
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private LocationType locationType = LocationType.ON_SITE;
 
     @Column(precision = 10, scale = 2)
@@ -70,10 +71,12 @@ public class Job {
     private BigDecimal salaryMax;
 
     @Column(length = 3)
+    @Builder.Default
     private String currency = "USD";
 
     @Column(length = 20)
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private SalaryFrequency salaryFrequency = SalaryFrequency.ANNUAL;
 
     @Column(nullable = false, length = 20)
@@ -139,6 +142,7 @@ public class Job {
         joinColumns = @JoinColumn(name = "job_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "skill_id", referencedColumnName = "id")
     )
+    @Builder.Default
     private Set<Skill> skills = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
@@ -147,6 +151,7 @@ public class Job {
         joinColumns = @JoinColumn(name = "job_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "benefit_id", referencedColumnName = "id")
     )
+    @Builder.Default
     private Set<Benefit> benefits = new HashSet<>();
 
     // Enums
