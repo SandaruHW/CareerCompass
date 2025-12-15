@@ -92,6 +92,13 @@ class AuthService {
           timestamp: new Date().toISOString(),
           path: endpoint,
         }));
+        
+        // Handle specific login errors - pass through the backend error message
+        if (endpoint === '/auth/login' && response.status === 401) {
+          // Backend now provides specific messages: "Email not found", "Password is incorrect", etc.
+          throw errorData;
+        }
+        
         throw errorData;
       }
 

@@ -73,7 +73,7 @@ public class AuthService {
         log.debug("Attempting login for email: {}", request.getEmail());
         
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("Invalid email or password"));
+                .orElseThrow(() -> new UsernameNotFoundException("Email not found"));
         
         // Check if account is locked
         if (user.getAccountLocked()) {
@@ -92,7 +92,7 @@ public class AuthService {
             user.incrementFailedLoginAttempts(5); // Max 5 attempts
             userRepository.save(user);
             log.warn("Failed login attempt for email: {}", request.getEmail());
-            throw new BadCredentialsException("Invalid email or password");
+            throw new BadCredentialsException("Password is incorrect");
         }
         
         // Successful login - reset failed attempts and update last login

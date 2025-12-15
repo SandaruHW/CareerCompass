@@ -47,9 +47,16 @@ export default function LoginPage() {
       router.push("/dashboard")
     } catch (error: any) {
       console.error("Login failed:", error)
+      
+      // Handle specific error messages
+      let errorMessage = "Please check your email and password."
+      if (error?.message) {
+        errorMessage = error.message
+      }
+      
       toast({
         title: "Login failed",
-        description: error.message || "Please check your email and password.",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
