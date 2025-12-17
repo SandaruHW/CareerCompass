@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/shared/sidebar"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { FileUploader } from "@/components/shared/file-uploader"
+import ResumeUploader from "@/components/shared/resume-uploader"
 import { CheckCircle2, AlertCircle, Zap } from "lucide-react"
 
 export default function UploadPage() {
@@ -35,7 +36,7 @@ export default function UploadPage() {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Upload Section */}
             <div className="lg:col-span-2">
-              <FileUploader onFileSelect={handleFileSelect} />
+              <ResumeUploader />
 
               {file && (
                 <div className="mt-8">

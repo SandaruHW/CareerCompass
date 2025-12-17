@@ -73,17 +73,17 @@ public class AuthService {
         log.debug("Attempting login for email: {}", request.getEmail());
         
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("Email not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Email not found. Please check your email or sign up."));
         
         // Check if account is locked
         if (user.getAccountLocked()) {
             log.warn("Login attempted for locked account: {}", request.getEmail());
-            throw new BadCredentialsException("Account is locked");
+            throw new BadCredentialsException("Your account has been locked due to too many failed login attempts. Please contact support.");
         }
         
         // Check if account is enabled
         if (!user.getEnabled()) {
-            throw new BadCredentialsException("Account is disabled");
+            throw new BadCredentialsException("Your account has been disabled. Please contact support.");
         }
         
         // Validate password
@@ -92,7 +92,7 @@ public class AuthService {
             user.incrementFailedLoginAttempts(5); // Max 5 attempts
             userRepository.save(user);
             log.warn("Failed login attempt for email: {}", request.getEmail());
-            throw new BadCredentialsException("Password is incorrect");
+            throw new BadCredentialsException("Incorrect password. Please try again.");
         }
         
         // Successful login - reset failed attempts and update last login

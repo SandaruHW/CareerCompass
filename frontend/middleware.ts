@@ -16,6 +16,24 @@ const publicRoutes = [
   '/signup'
 ]
 
+// Helper function to validate JWT token
+function isValidToken(token: string): boolean {
+  try {
+    // Basic JWT structure check
+    const parts = token.split('.')
+    if (parts.length !== 3) return false
+    
+    // Decode payload
+    const payload = JSON.parse(atob(parts[1]))
+    const currentTime = Date.now() / 1000
+    
+    // Check if token is not expired
+    return payload.exp > currentTime
+  } catch (error) {
+    return false
+  }
+}
+
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get('auth_token')?.value
@@ -30,16 +48,28 @@ export default function middleware(request: NextRequest) {
     pathname.startsWith(route)
   )
 
+  // Validate token if it exists
+  const isAuthenticated = token && isValidToken(token)
+
   // If user is not authenticated and trying to access protected route
-  if (isProtectedRoute && !token) {
+  if (isProtectedRoute && !isAuthenticated) {
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('from', pathname)
     return NextResponse.redirect(loginUrl)
   }
 
   // If user is authenticated and trying to access public routes (login/signup)
-  if (isPublicRoute && token) {
+  if (isPublicRoute && isAuthenticated) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
+  // If token exists but is invalid, clear it by redirecting to login with instructions to clear cookies
+  if (isPublicRoute && token && !isAuthenticated) {
+    const response = NextResponse.next()
+    // Clear invalid tokens
+    response.cookies.set('auth_token', '', { maxAge: 0 })
+    response.cookies.set('refresh_token', '', { maxAge: 0 })
+    return response
   }
 
   return NextResponse.next()
