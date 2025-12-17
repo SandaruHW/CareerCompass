@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/lib/auth-context"
+import { authService } from "@/lib/auth-service"
 import Link from "next/link"
 import { Briefcase, Mail, Lock, Eye, EyeOff } from "lucide-react"
 
@@ -23,6 +24,18 @@ export default function LoginPage() {
   const { login } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
+
+  // Clear any invalid tokens when login page loads
+  useEffect(() => {
+    const clearInvalidTokens = async () => {
+      const token = authService.getToken()
+      if (token && !authService.isAuthenticated()) {
+        // Token exists but is invalid - clear it
+        await authService.logout()
+      }
+    }
+    clearInvalidTokens()
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
@@ -50,9 +63,19 @@ export default function LoginPage() {
       
       // Handle specific error messages
       let errorMessage = "Please check your email and password."
+      
+      // Try to extract the specific error message from the backend response
       if (error?.message) {
         errorMessage = error.message
+      } else if (error?.error?.message) {
+        errorMessage = error.error.message
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message
+      } else if (typeof error === 'string') {
+        errorMessage = error
       }
+      
+      console.log('Extracted error message:', errorMessage)
       
       toast({
         title: "Login failed",

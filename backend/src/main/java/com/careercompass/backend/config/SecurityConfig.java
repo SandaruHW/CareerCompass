@@ -2,6 +2,8 @@ package com.careercompass.backend.config;
 
 import com.careercompass.backend.config.properties.AppProperties;
 import com.careercompass.backend.config.security.JwtAuthenticationFilter;
+import com.careercompass.backend.config.security.CustomAuthenticationEntryPoint;
+import com.careercompass.backend.config.security.CustomAccessDeniedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +28,8 @@ public class SecurityConfig {
     private final AppProperties appProperties;
     @Lazy
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -44,6 +48,11 @@ public class SecurityConfig {
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            // Set custom authentication entry point
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                .accessDeniedHandler(customAccessDeniedHandler)
             )
             // Add JWT authentication filter
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

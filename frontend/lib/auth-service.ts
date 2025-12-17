@@ -93,8 +93,14 @@ class AuthService {
           path: endpoint,
         }));
         
+        console.error('API Error Response:', {
+          status: response.status,
+          endpoint,
+          errorData
+        });
+        
         // Handle specific login errors - pass through the backend error message
-        if (endpoint === '/auth/login' && response.status === 401) {
+        if (endpoint === '/auth/login' && (response.status === 401 || response.status === 403)) {
           // Backend now provides specific messages: "Email not found", "Password is incorrect", etc.
           throw errorData;
         }
